@@ -178,9 +178,9 @@ public class Tuple implements Comparable{
 		return s;
 	}
 
-	public boolean getGenderAsBoolean() {
+	public int getGenderAsNum() {
 		
-		return tuple[43]==49; //1 is male
+		return tuple[43]-48;
 	}
 
 	public int getDeptAsNum() {

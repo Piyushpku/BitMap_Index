@@ -3,8 +3,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 
 /**
@@ -33,25 +31,27 @@ public class Main {
 		 * C:\Users\ekjot\git\TPMMS\TPMMS\Data\Data.txt
 		 */
 
-		buildIndex(fileAddress1, fileAddress2);
+		// buildIndex(fileAddress1, fileAddress2);
+
+		byte numOfSublists = phaseOne(fileAddress1, fileAddress2);
 
 	}
 
-	private static void buildIndex(String fileAddress1, String fileAddress2) throws IOException {
-
-		HashMap<Integer, ArrayList<Boolean>> empHash = new HashMap<Integer, ArrayList<Boolean>>();
-		HashMap<Boolean, ArrayList<Boolean>> genderHash = new HashMap<Boolean, ArrayList<Boolean>>();
-		HashMap<Integer, ArrayList<Boolean>> deptHash = new HashMap<Integer, ArrayList<Boolean>>();
-
+	private static byte phaseOne(String fileAddress1, String fileAddress2) throws IOException {
+		byte numOfSublists = 0;
 		int numOfTuples = 0;
 		boolean file1Complete = false, file2Complete = false;
 
 		DataReader dr = new DataReader(fileAddress1);
 		byte firstByte = dr.readByte();
 
+		HashMap<Integer, ArrayList<Integer>> empHash = new HashMap<Integer, ArrayList<Integer>>();
+		HashMap<Integer, ArrayList<Integer>> genderHash = new HashMap<Integer, ArrayList<Integer>>();
+		HashMap<Integer, ArrayList<Integer>> deptHash = new HashMap<Integer, ArrayList<Integer>>();
+
 		while (!file1Complete || !file2Complete) {
 
-			if (firstByte == -1) { // file ends
+			if (firstByte == -1) { // any file ends
 
 				if (!file1Complete) { // if first file ended
 					file1Complete = true;
@@ -74,47 +74,56 @@ public class Main {
 			numOfTuples++;
 
 			Integer empid = tuple.getEmpIDAsNum();
-			Boolean gender = tuple.getGenderAsBoolean(); // true is male
+			Integer gender = tuple.getGenderAsNum();
 			Integer dept = tuple.getDeptAsNum();
 
-			
-			
-			
 			if (!empHash.containsKey(empid)) {
-				ArrayList<Boolean> list = new ArrayList<Boolean>();
-				if (numOfTuples > 1) {
-					list = new ArrayList<Boolean>(Arrays.asList(new Boolean[numOfTuples - 1]));
-
-					Collections.fill(list, Boolean.FALSE);
-				}
-				list.add(true);
+				ArrayList<Integer> list = new ArrayList<Integer>();
+				list.add(numOfTuples);
 				empHash.put(empid, list);
 			}
+			else {
+				empHash.get(empid).add(numOfTuples);
+			}
+			
 			if (!genderHash.containsKey(gender)) {
-				ArrayList<Boolean> list = new ArrayList<Boolean>();
-				if (numOfTuples > 1) {
-					list = new ArrayList<Boolean>(Arrays.asList(new Boolean[numOfTuples - 1]));
-
-					Collections.fill(list, Boolean.FALSE);
-				}
-				list.add(true);
+				ArrayList<Integer> list = new ArrayList<Integer>();
+				list.add(numOfTuples);
 				genderHash.put(gender, list);
 			}
+			else {
+				genderHash.get(gender).add(numOfTuples);
+			}
+			
 			if (!deptHash.containsKey(dept)) {
-				ArrayList<Boolean> list = new ArrayList<Boolean>();
-				if (numOfTuples > 1) {
-					list = new ArrayList<Boolean>(Arrays.asList(new Boolean[numOfTuples - 1]));
-
-					Collections.fill(list, Boolean.FALSE);
-				}
-				list.add(true);
+				ArrayList<Integer> list = new ArrayList<Integer>();
+				list.add(numOfTuples);
 				deptHash.put(dept, list);
 			}
+			else {
+				deptHash.get(dept).add(numOfTuples);
+			}
+			
 
+			if (numOfTuples % 250000 == 0) {
+
+				writeSublist(numOfSublists, empHash, genderHash, deptHash);
+
+				empHash = new HashMap<Integer, ArrayList<Integer>>();
+				genderHash = new HashMap<Integer, ArrayList<Integer>>();
+				deptHash = new HashMap<Integer, ArrayList<Integer>>();
+
+			}
 		}
 
-		// List<Boolean> list=new ArrayList<Boolean>(Arrays.asList(new Boolean[10]));
-		// Collections.fill(list, Boolean.TRUE);
+		return numOfSublists;
+	}
+
+
+
+	private static void writeSublist(byte numOfSublists, HashMap<Integer, ArrayList<Integer>> empHash,
+			HashMap<Integer, ArrayList<Integer>> genderHash, HashMap<Integer, ArrayList<Integer>> deptHash) {
+		// TODO Auto-generated method stub
 
 	}
 
