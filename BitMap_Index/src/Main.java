@@ -49,7 +49,10 @@ public class Main {
 		TreeMap<Integer, ArrayList<Integer>> genderHash = new TreeMap<Integer, ArrayList<Integer>>();
 		TreeMap<Integer, ArrayList<Integer>> deptHash = new TreeMap<Integer, ArrayList<Integer>>();
 
+		//run until both files are complete
 		while (!file1Complete || !file2Complete) {
+			
+			//code to select second file when first file ends
 			if (firstByte == -1) { // any file ends
 
 				if (!file1Complete) { // if first file ended
@@ -69,6 +72,7 @@ public class Main {
 				}
 			}
 
+			//code to read a tuple and extract values
 			Tuple tuple = dr.readTuple(firstByte);
 			numOfTuples++;
 System.out.println(numOfTuples);
@@ -76,11 +80,13 @@ System.out.println(numOfTuples);
 			Integer gender = tuple.getGenderAsNum();
 			Integer dept = tuple.getDeptAsNum();
 
+			//if treemaps dont have given key, add it and assign new arraylist
 			if (!empHash.containsKey(empid)) {
 				ArrayList<Integer> list = new ArrayList<Integer>();
 				list.add(numOfTuples);
 				empHash.put(empid, list);
-			} else {
+			} //if treemap have given key, add index to its arraylist
+			else {
 				
 				empHash.get(empid).add(numOfTuples);
 //				empHash.get(empid).trimToSize();
@@ -105,6 +111,8 @@ System.out.println(numOfTuples);
 			}
 
 			// System.out.println(firstByte+" "+numOfTuples+" "+tuple.toString());
+			
+			//read a small batch only and write it to disk; refresh treemaps
 			if (numOfTuples % 30000 == 0) {
 
 				writeSublist(++numOfSublists, empHash, genderHash, deptHash);
