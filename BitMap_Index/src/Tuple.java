@@ -125,24 +125,24 @@ public class Tuple{
 	}
 
 
-	public String getEmpIDAsString() {
-		String s="";
+	public Integer getEmpIDAsNum() {
+		Integer s=0;
 		byte[] empId=this.getEmpID();
 		for(byte i=0;i<8;i++) {
-			s+=empId[i]-48;
+			s=(s*10)+empId[i]-48;
 		}
 		return s;
 	}
 
-	public String getGenderAsString() {
+	public Integer getGenderAsNum() {
 		
-		return tuple[43]-48+"";
+		return tuple[43]-48;
 	}
 
-	public String getDeptAsString() {
-		String dept="";
+	public Integer getDeptAsNum() {
+		Integer dept=0;
 		for(int i=44;i<=46;i++) {
-			dept+=tuple[i]-48;
+			dept=(dept*10)+tuple[i]-48;
 		}
 		return dept;
 		
