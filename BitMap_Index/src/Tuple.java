@@ -6,7 +6,7 @@
  * @author ekjot
  *
  */
-public class Tuple implements Comparable{
+public class Tuple{
 
 	private static final int INF = 999999999;
 	private byte[] tuple;
@@ -124,69 +124,25 @@ public class Tuple implements Comparable{
 		return true;
 	}
 
-	@Override
-	public int compareTo(Object Tuple2) {
 
-		
-		
-		Tuple tuple2=(Tuple)Tuple2;
-
-				//		// to check if the first tuple is valid or not.
-//		if (this.isEmpty()) {
-//			return INF;
-//		}
-//
-//		// to check if the second tuple is valid or not.
-//		if (tuple2.isEmpty()) {
-//			return -INF;
-//		}
-
-		int temp1 = this.getEmpIDAsNum();
-		int temp2 = tuple2.getEmpIDAsNum();
-
-//		System.out.println("comparing:  "+this.toString()+"   with  "+tuple2.toString());
-//System.out.println(temp1-temp2+"\n");
-		
-		
-		// comparison of the two employee IDs
-		return temp1-temp2;
-
-//		if (considerLastUpdate && this.hasSameEmpId(tuple2)) {
-//			temp1 = this.getLastUpdate();
-//			temp2 = tuple2.getLastUpdate();
-//
-//			// if both are equal,checking for last update
-//			for (int i = 0; i < 10; i++) {
-//
-//				if (temp1[i] > temp2[i]) {
-//					return true;
-//				} else if (temp1[i] < temp2[i]) {
-//					return false;
-//				}
-//
-//			}
-//		}
-	
-	}
-
-	public int getEmpIDAsNum() {
-		int s=0;
+	public String getEmpIDAsString() {
+		String s="";
 		byte[] empId=this.getEmpID();
 		for(byte i=0;i<8;i++) {
-			s=((s*10)+(empId[i]-48));
+			s+=empId[i]-48;
 		}
 		return s;
 	}
 
-	public int getGenderAsNum() {
+	public String getGenderAsString() {
 		
-		return tuple[43]-48;
+		return tuple[43]-48+"";
 	}
 
-	public int getDeptAsNum() {
-		int dept=0;
+	public String getDeptAsString() {
+		String dept="";
 		for(int i=44;i<=46;i++) {
-			dept=(dept*10)+(tuple[i]-48);
+			dept+=tuple[i]-48;
 		}
 		return dept;
 		

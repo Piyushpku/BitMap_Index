@@ -1,9 +1,11 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.TreeMap;
 
 /**
  * 
@@ -31,8 +33,6 @@ public class Main {
 		 * C:\Users\ekjot\git\TPMMS\TPMMS\Data\Data.txt
 		 */
 
-		// buildIndex(fileAddress1, fileAddress2);
-
 		byte numOfSublists = phaseOne(fileAddress1, fileAddress2);
 
 	}
@@ -45,12 +45,11 @@ public class Main {
 		DataReader dr = new DataReader(fileAddress1);
 		byte firstByte = dr.readByte();
 
-		HashMap<Integer, ArrayList<Integer>> empHash = new HashMap<Integer, ArrayList<Integer>>();
-		HashMap<Integer, ArrayList<Integer>> genderHash = new HashMap<Integer, ArrayList<Integer>>();
-		HashMap<Integer, ArrayList<Integer>> deptHash = new HashMap<Integer, ArrayList<Integer>>();
+		TreeMap<String, ArrayList<String>> empHash = new TreeMap<String, ArrayList<String>>();
+		TreeMap<String, ArrayList<String>> genderHash = new TreeMap<String, ArrayList<String>>();
+		TreeMap<String, ArrayList<String>> deptHash = new TreeMap<String, ArrayList<String>>();
 
 		while (!file1Complete || !file2Complete) {
-
 			if (firstByte == -1) { // any file ends
 
 				if (!file1Complete) { // if first file ended
@@ -73,57 +72,93 @@ public class Main {
 			Tuple tuple = dr.readTuple(firstByte);
 			numOfTuples++;
 
-			Integer empid = tuple.getEmpIDAsNum();
-			Integer gender = tuple.getGenderAsNum();
-			Integer dept = tuple.getDeptAsNum();
+			String empid = tuple.getEmpIDAsString();
+			String gender = tuple.getGenderAsString();
+			String dept = tuple.getDeptAsString();
 
 			if (!empHash.containsKey(empid)) {
-				ArrayList<Integer> list = new ArrayList<Integer>();
-				list.add(numOfTuples);
+				ArrayList<String> list = new ArrayList<String>();
+				list.add(numOfTuples + "");
 				empHash.put(empid, list);
+			} else {
+				empHash.get(empid).add(numOfTuples + "");
 			}
-			else {
-				empHash.get(empid).add(numOfTuples);
-			}
-			
-			if (!genderHash.containsKey(gender)) {
-				ArrayList<Integer> list = new ArrayList<Integer>();
-				list.add(numOfTuples);
-				genderHash.put(gender, list);
-			}
-			else {
-				genderHash.get(gender).add(numOfTuples);
-			}
-			
-			if (!deptHash.containsKey(dept)) {
-				ArrayList<Integer> list = new ArrayList<Integer>();
-				list.add(numOfTuples);
-				deptHash.put(dept, list);
-			}
-			else {
-				deptHash.get(dept).add(numOfTuples);
-			}
-			
 
+			if (!genderHash.containsKey(gender)) {
+				ArrayList<String> list = new ArrayList<String>();
+				list.add(numOfTuples + "");
+				genderHash.put(gender, list);
+			} else {
+				genderHash.get(gender).add(numOfTuples + "");
+			}
+
+			if (!deptHash.containsKey(dept)) {
+				ArrayList<String> list = new ArrayList<String>();
+				list.add(numOfTuples + "");
+				deptHash.put(dept, list);
+			} else {
+				deptHash.get(dept).add(numOfTuples + "");
+			}
+
+			// System.out.println(firstByte+" "+numOfTuples+" "+tuple.toString());
 			if (numOfTuples % 250000 == 0) {
 
-				writeSublist(numOfSublists, empHash, genderHash, deptHash);
+				writeSublist(++numOfSublists, empHash, genderHash, deptHash);
 
-				empHash = new HashMap<Integer, ArrayList<Integer>>();
-				genderHash = new HashMap<Integer, ArrayList<Integer>>();
-				deptHash = new HashMap<Integer, ArrayList<Integer>>();
+				empHash = new TreeMap<String, ArrayList<String>>();
+				genderHash = new TreeMap<String, ArrayList<String>>();
+				deptHash = new TreeMap<String, ArrayList<String>>();
 
 			}
+			firstByte = dr.readByte();
+		}
+
+		if (!empHash.isEmpty()) {
+			writeSublist(++numOfSublists, empHash, genderHash, deptHash);
 		}
 
 		return numOfSublists;
 	}
 
+	private static void writeSublist(byte numOfSublists, TreeMap<String, ArrayList<String>> empHash,
+			TreeMap<String, ArrayList<String>> genderHash, TreeMap<String, ArrayList<String>> deptHash)
+			throws IOException {
 
+		BufferedWriter br = new BufferedWriter(new FileWriter(numOfSublists + "_emp.txt"));
 
-	private static void writeSublist(byte numOfSublists, HashMap<Integer, ArrayList<Integer>> empHash,
-			HashMap<Integer, ArrayList<Integer>> genderHash, HashMap<Integer, ArrayList<Integer>> deptHash) {
-		// TODO Auto-generated method stub
+		for (String empid : empHash.keySet()) {
+			br.write(empid);
+			for (String index : empHash.get(empid)) {
+				br.write(" " + index);
+			}
+			br.write("\r\n");
+		}
+
+		br.close();
+
+		br = new BufferedWriter(new FileWriter(numOfSublists + "_dept.txt"));
+
+		for (String dept : deptHash.keySet()) {
+			br.write(dept + "");
+			for (String index : deptHash.get(dept)) {
+				br.write(" " + index);
+			}
+			br.write("\r\n");
+		}
+
+		br.close();
+
+		br = new BufferedWriter(new FileWriter(numOfSublists + "_gender.txt"));
+
+		for (String gender : genderHash.keySet()) {
+			br.write(gender + "");
+			for (String index : genderHash.get(gender)) {
+				br.write(" " + index);
+			}
+			br.write("\r\n");
+		}
+
+		br.close();
 
 	}
 

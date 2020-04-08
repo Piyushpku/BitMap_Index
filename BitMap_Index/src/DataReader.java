@@ -45,6 +45,7 @@ public class DataReader {
 		firstByte=readByte();
 		
 		//now stream is on new line char ie. 10
+		
 		return new Tuple(data);
 	}
 	void delink() throws IOException {
