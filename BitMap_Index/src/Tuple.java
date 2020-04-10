@@ -148,6 +148,15 @@ public class Tuple{
 		
 	}
 
+	public Integer getLastUpdateAsNum() {
+		Integer lastUpdate=0;
+		byte[] lu=getLastUpdate();
+		for(int i=0;i<8;i++) {
+			lastUpdate=(lastUpdate*10)+lu[i]-48;
+		}
+		return lastUpdate;
+	}
+
 
 
 	

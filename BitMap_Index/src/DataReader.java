@@ -19,6 +19,7 @@ public class DataReader {
 	DataReader(String fileAddress) throws FileNotFoundException {
 		br = new BufferedReader(new FileReader(fileAddress));
 		
+		
 	}
 	DataReader(){}
 	
@@ -28,6 +29,10 @@ public class DataReader {
 		return (byte) br.read();
 	}
 	
+	String readLine() throws IOException {
+		
+		return br.readLine();
+	}
 	
 	Tuple readTuple(byte firstByte) throws IOException{//firstByte is already read byte
 		
