@@ -5,7 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.TreeMap;
 
@@ -20,7 +20,7 @@ import java.util.TreeMap;
 public class Main {
 
 	static Integer TOTAL_TUPLES;
-
+	static Integer SUBLIST_SIZE=30000;
 	/**
 	 * @param args
 	 * @throws IOException
@@ -28,78 +28,83 @@ public class Main {
 	public static void main(String[] args) throws IOException {
 
 		System.out.println("File 1:");
-		String fileAddress1 = "C:\\Users\\ekjot\\git\\BitMap_Index\\BitMap_Index\\Data\\Data2.txt";// getFileAddress();
+		String fileAddress1 = "C:\\Users\\ekjot\\git\\BitMap_Index\\BitMap_Index\\Data\\Data1.txt";// getFileAddress();
 
 		System.out.println("\nFile 2:");
-		String fileAddress2 = "C:\\Users\\ekjot\\git\\BitMap_Index\\BitMap_Index\\Data\\Data3.txt";// getFileAddress();
+		String fileAddress2 = "C:\\Users\\ekjot\\git\\BitMap_Index\\BitMap_Index\\Data\\Data2.txt";// getFileAddress();
 
 		/*
 		 * C:\Users\ekjot\git\BitMap_Index\BitMap_Index\Data\Data.txt
 		 */
 
-		byte numOfSublists = phaseOne(fileAddress1, fileAddress2);
+		Double time = (double) System.nanoTime();
+		Integer numOfSublists = phaseOne(fileAddress1, fileAddress2);
 		buildBitIndex(numOfSublists);
 
-	}
-
-	private static void buildBitIndex(byte numOfSublists) throws IOException {
-
-		makeEmpIdBitIndex(numOfSublists);
+		System.out.println((System.nanoTime() - time) / 1000000000 +" sec");
 
 	}
 
-	private static void makeEmpIdBitIndex(byte numOfSublists) throws IOException {
+	private static void buildBitIndex(Integer numOfSublists) throws IOException {
+
+		makeBitmapIndex(numOfSublists, "emp");
+		makeBitmapIndex(numOfSublists, "dept");
+		makeBitmapIndex(numOfSublists, "gender");
+
+	}
+
+	private static void makeBitmapIndex(Integer numOfSublists, String col) throws IOException {
 		// list to store all reading streams
 		ArrayList<DataReader> DR = new ArrayList<DataReader>();
 
 		// linking streams to all sublists
-		for (byte i = 1; i <= numOfSublists; i++) {
-			DR.add(new DataReader("sublists\\" + i + "_emp.txt"));
+		for (Integer i = 1; i <= numOfSublists; i++) {
+			DR.add(new DataReader("sublists\\" + i + "_" + col + ".txt"));
 		}
 
 		// Map to store K,V as empid and a list of its indexes
-		TreeMap<Integer, ArrayList<Integer>> empMap = new TreeMap<Integer, ArrayList<Integer>>();
+		TreeMap<Integer, ArrayList<Integer>> map = new TreeMap<Integer, ArrayList<Integer>>();
 
 		// stream for writing
-		BufferedWriter bw = new BufferedWriter(new FileWriter("sublists\\emp.txt"));
+		BufferedWriter bw = new BufferedWriter(new FileWriter( col + ".txt"));
 
 		// MERGING ALGORITHM
 		// read first line of every sublist into a list
-		//// if two sublists have same empid, merge/append those in list
-		// sort the list from min empid to max(used TreeMap, so no need of sort)
-		// write bitmap index of min empid to a file
+		//// if two sublists have same key, merge/append those in list
+		// sort the list from min key to max(used TreeMap, so no need of sort)
+		// write bitmap index of min key to a file
 		// read next line from all sublists
 		// repeat untill no sublist is left.
 
 		// repeat untill all streams are done or in other words, DR is empty
 		while (!DR.isEmpty()) {
 
-			// used iterator because of concurrent modification to DR list
-			Iterator<DataReader> itr = DR.iterator();
-
 			// fill list with a line from each stream
-			fillMap(itr, empMap);
+			fillMap(DR, map);
 
-			if (empMap.isEmpty()) {
+			if (map.isEmpty()) {
 				break;
 			}
 
-			// write bitmap index of min empid
-			writeBIForMinEmpid(bw, empMap);
+			// write bitmap index of min key
+
+			writeBIForMinKey(bw, map, col);
 
 		}
 
-		//if there are some left empid in list even after all streams are finished
-		while (!empMap.isEmpty()) {
-			writeBIForMinEmpid(bw, empMap);
+		// if there are some key left in list even after all streams are finished
+		while (!map.isEmpty()) {
+			writeBIForMinKey(bw, map, col);
 		}
 
 		bw.close();
 
 	}
 
-	private static void fillMap(Iterator<DataReader> itr, TreeMap<Integer, ArrayList<Integer>> empMap)
-			throws IOException {
+	private static void fillMap(ArrayList<DataReader> DR, TreeMap<Integer, ArrayList<Integer>> map) throws IOException {
+		// used iterator because of concurrent modification to DR list
+		Iterator<DataReader> itr = DR.iterator();
+
 		// traverse through all streams
 		while (itr.hasNext()) {
 			DataReader dr = itr.next();
@@ -111,60 +116,86 @@ public class Main {
 				continue; // continue to next stream
 			}
 
-			// adding string containing empid and indexes to list
-			addStrToMap(str, empMap);
+			// adding string containing key and indexes to list
+			addStrToMap(str, map);
 
 		}
 
 	}
 
-	private static void writeBIForMinEmpid(BufferedWriter bw, TreeMap<Integer, ArrayList<Integer>> empMap)
+	private static void writeBIForMinKey(BufferedWriter bw, TreeMap<Integer, ArrayList<Integer>> map, String col)
 			throws IOException {
-		Integer empid = empMap.firstKey();
+		Integer key = map.firstKey();
 
-		ArrayList<Integer> index_lastUpdate = empMap.get(empid);
+		ArrayList<Integer> index = map.get(key);
 
-		TreeMap<Integer, Integer> lastUpdate_index = new TreeMap<Integer, Integer>();
-		Integer[] index = new Integer[index_lastUpdate.size() / 2];
-
-		for (int i = 0; i < index_lastUpdate.size() / 2; i++) {
-			lastUpdate_index.put(index_lastUpdate.get(i * 2 + 1), index_lastUpdate.get(i * 2));
-			index[i] = index_lastUpdate.get(i * 2);
+		if (col.equals("emp")) {
+			useLatestUpdate(index);
 		}
-		Arrays.sort(index);
 
-		writeBitmapIndex(bw, empid, index);
-		empMap.remove(empid);
+		Collections.sort(index);
+
+		writeBitmapIndex(bw, key, index.toArray(new Integer[index.size()]), col);
+		map.remove(key);
 
 	}
 
-	private static void addStrToMap(String str, TreeMap<Integer, ArrayList<Integer>> empMap) {
-		// splitting the line into empid and list of index and lastupdate
-		String[] kv = (str).split(" ");
-		Integer empid = Integer.parseInt(kv[0]);
+	private static void useLatestUpdate(ArrayList<Integer> index) {
+		Iterator itr = index.iterator();
+		// itr.next();
+		Integer ind = (Integer) itr.next();
+		Integer lastUpdate = (Integer) itr.next();
+		itr.remove();
 
-		// if map do not have given empid, add it with list of index and lastupdate as
-		// it is
-		if (!empMap.containsKey(empid)) {
+		while (itr.hasNext()) {
+			Integer newInd = (Integer) itr.next();
+			Integer newLastUpdate = (Integer) itr.next();
+			itr.remove();
+
+			if (newLastUpdate > lastUpdate) {
+				lastUpdate = newLastUpdate;
+				ind = newInd;
+			}
+		}
+
+	}
+
+	private static void addStrToMap(String str, TreeMap<Integer, ArrayList<Integer>> map) {
+		// splitting the line into key and list of index
+		String[] kv = (str).split(" ");
+		Integer key = Integer.parseInt(kv[0]);
+
+		// if map do not have given key, add it along with list of index
+		if (!map.containsKey(key)) {
 			ArrayList<Integer> list = new ArrayList<Integer>();
 			for (int i = 1; i < kv.length; i++) {
 				list.add(Integer.parseInt(kv[i]));
 			}
-			empMap.put(empid, list);
-		} // if map have given empid, append list of index and lastupdate to its arraylist
+			map.put(key, list);
+		} // if map have given key, append list of index to its arraylist
 		else {
 			for (int i = 1; i < kv.length; i++) {
-				empMap.get(empid).add(Integer.parseInt(kv[i]));
+				map.get(key).add(Integer.parseInt(kv[i]));
 			}
 
 		}
 
 	}
 
-	private static void writeBitmapIndex(BufferedWriter bw, Integer empid, Integer[] index) throws IOException {
-		bw.write(empid + " ");
+	private static void writeBitmapIndex(BufferedWriter bw, Integer key, Integer[] index, String col)
+			throws IOException {
+		String Key = "" + key;
+		if (col.equals("emp")) {
+			Key = String.format("%08d", key);
+		} else if (col.equals("dept")) {
+			Key = String.format("%03d", key);
+		}
+
+		bw.write(Key + " ");
 		int i = 1;
+
 		for (Integer ind : index) {
+
 			for (; i < ind; i++) {
 				bw.write("0");
 			}
@@ -177,8 +208,8 @@ public class Main {
 		bw.write("\n");
 	}
 
-	private static byte phaseOne(String fileAddress1, String fileAddress2) throws IOException {
-		byte numOfSublists = 0;
+	private static Integer phaseOne(String fileAddress1, String fileAddress2) throws IOException {
+		Integer numOfSublists = 0;
 		int numOfTuples = 0;
 		boolean file1Complete = false, file2Complete = false;
 
@@ -254,7 +285,7 @@ public class Main {
 			// System.out.println(firstByte+" "+numOfTuples+" "+tuple.toString());
 
 			// read a small batch only and write it to disk; refresh treemaps
-			if (numOfTuples % 1000 == 0) {
+			if (numOfTuples % SUBLIST_SIZE == 0) {
 
 				writeSublist(++numOfSublists, empHash, genderHash, deptHash);
 
@@ -273,7 +304,7 @@ public class Main {
 		return numOfSublists;
 	}
 
-	private static void writeSublist(byte numOfSublists, TreeMap<Integer, ArrayList<Integer>> empHash,
+	private static void writeSublist(Integer numOfSublists, TreeMap<Integer, ArrayList<Integer>> empHash,
 			TreeMap<Integer, ArrayList<Integer>> genderHash, TreeMap<Integer, ArrayList<Integer>> deptHash)
 			throws IOException {
 
