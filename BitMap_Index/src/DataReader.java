@@ -56,5 +56,10 @@ public class DataReader {
 	void delink() throws IOException {
 		br.close();
 	}
+	public Tuple readTupleAt(int index) throws IOException {
+		
+		br.skip((index-1)*102);
+		return readTuple(readByte());
+	}
 
 }

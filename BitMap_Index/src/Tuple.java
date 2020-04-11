@@ -10,6 +10,7 @@ public class Tuple{
 
 	private static final int INF = 999999999;
 	private byte[] tuple;
+	
 
 	Tuple() {
 		tuple = new byte[100];
@@ -125,8 +126,8 @@ public class Tuple{
 	}
 
 
-	public Integer getEmpIDAsNum() {
-		Integer s=0;
+	public int getEmpIDAsNum() {
+		int s=0;
 		byte[] empId=this.getEmpID();
 		for(byte i=0;i<8;i++) {
 			s=(s*10)+empId[i]-48;
@@ -134,24 +135,24 @@ public class Tuple{
 		return s;
 	}
 
-	public Integer getGenderAsNum() {
+	public byte getGenderAsNum() {
 		
-		return tuple[43]-48;
+		return (byte) (tuple[43]-48);
 	}
 
-	public Integer getDeptAsNum() {
-		Integer dept=0;
-		for(int i=44;i<=46;i++) {
+	public int getDeptAsNum() {
+		int dept=0;
+		for(short i=44;i<=46;i++) {
 			dept=(dept*10)+tuple[i]-48;
 		}
 		return dept;
 		
 	}
 
-	public Integer getLastUpdateAsNum() {
-		Integer lastUpdate=0;
+	public int getLastUpdateAsNum() {
+		int lastUpdate=0;
 		byte[] lu=getLastUpdate();
-		for(int i=0;i<10;i++) {
+		for(byte i=0;i<10;i++) {
 			lastUpdate=(lastUpdate*10)+lu[i]-48;
 		}
 		return lastUpdate;
