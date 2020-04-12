@@ -9,9 +9,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.TreeMap;
 
-/**
- * 
- */
 
 /**
  * @author ekjot
@@ -34,6 +31,15 @@ public class Main {
 	static String fileAddress2;
 
 	static int tuplesInFile1;
+	
+	/*
+	 * ALGORITHM (TPMMS to build Bitmap Index):
+	 * 
+	 * 1. Create sorted sublists of maximum size that main memory can accommodate.
+	 * *sublist should contain key and its index in provided original file
+	 * 2. 
+	 * 
+	 */
 
 	/**
 	 * @param args
@@ -42,16 +48,10 @@ public class Main {
 	public static void main(String[] args) throws IOException {
 
 		System.out.println("File 1:");
-		// fileAddress1 =
-		// "C:\\Users\\ekjot\\git\\BitMap_Index\\BitMap_Index\\Data\\"+f1+".txt";//
-
-		fileAddress1 = getFileAddress();
+		fileAddress1 ="C:\\Users\\ekjot\\git\\BitMap_Index\\BitMap_Index\\Data\\Data1.txt"; //getFileAddress();
 
 		System.out.println("\nFile 2:");
-		// fileAddress2 =
-		// "C:\\Users\\ekjot\\git\\BitMap_Index\\BitMap_Index\\Data\\"+f2+".txt";//
-
-		fileAddress2 = getFileAddress();
+		fileAddress2 = "C:\\Users\\ekjot\\git\\BitMap_Index\\BitMap_Index\\Data\\Data2.txt";//getFileAddress();
 
 		File f = new File("merged.txt");
 		if (f.exists()) {
