@@ -109,7 +109,7 @@ public class Main {
 		byte firstByte = dr.readByte();
 
 		TreeMap<Integer, ArrayList<Integer>> empHash = new TreeMap<Integer, ArrayList<Integer>>();
-		TreeMap<Byte, ArrayList<Integer>> genderHash = new TreeMap<Byte, ArrayList<Integer>>();
+		TreeMap<Integer, ArrayList<Integer>> genderHash = new TreeMap<Integer, ArrayList<Integer>>();
 		TreeMap<Integer, ArrayList<Integer>> deptHash = new TreeMap<Integer, ArrayList<Integer>>();
 
 		// run until both files are complete
@@ -140,74 +140,27 @@ public class Main {
 			// code to read a tuple and extract values
 			Tuple tuple = dr.readTuple(firstByte);
 			numOfTuples++;
-			// System.out.println(numOfTuples);
+
 			if (numOfTuples == MAX_TUPLES) {
 				break;
 			}
 			int empid = tuple.getEmpIDAsNum();
-			byte gender = tuple.getGenderAsNum();
+			int gender = tuple.getGenderAsNum();
 			int dept = tuple.getDeptAsNum();
-
 			int lastUpdate = tuple.getLastUpdateAsNum();
 
-			// if treemaps dont have given key, add it and assign new arraylist
-			if (!empHash.containsKey(empid)) {
-				ArrayList<Integer> list = new ArrayList<Integer>();
-				list.add(numOfTuples);
-
-				list.add(numOfTuples);
-				list.add(lastUpdate);
-
-				empHash.put(empid, list);
-			} // if treemap have given key, add index to its arraylist
-			else {
-				int last = empHash.get(empid).size() - 1;
-
-				int oldLastUpdate = empHash.get(empid).get(last);
-				int oldIndex = empHash.get(empid).get(last - 1);
-
-				empHash.get(empid).remove(last);
-				empHash.get(empid).remove(last - 1);
-
-				empHash.get(empid).add(numOfTuples);
-
-				if (lastUpdate > oldLastUpdate) {
-					empHash.get(empid).add(numOfTuples);
-					empHash.get(empid).add(lastUpdate);
-				} else {
-					empHash.get(empid).add(oldIndex);
-					empHash.get(empid).add(oldLastUpdate);
-				}
-
-			}
-
-			if (!genderHash.containsKey(gender)) {
-				ArrayList<Integer> list = new ArrayList<Integer>();
-				list.add(numOfTuples);
-				genderHash.put(gender, list);
-			} else {
-				genderHash.get(gender).add(numOfTuples);
-			}
-
-			if (!deptHash.containsKey(dept)) {
-				ArrayList<Integer> list = new ArrayList<Integer>();
-				list.add(numOfTuples);
-				deptHash.put(dept, list);
-			} else {
-				deptHash.get(dept).add(numOfTuples);
-			}
-
-			// System.out.println(firstByte+" "+numOfTuples+" "+tuple.toString());
-
+			addToMap(empid, numOfTuples, empHash, true, lastUpdate);
+			addToMap(gender, numOfTuples, genderHash, false, 0);
+			addToMap(dept, numOfTuples, deptHash, false, 0);
+			
 			// read a small batch only and write it to disk; refresh treemaps
 			if (numOfTuples % SUBLIST_SIZE == 0) {
 
 				writeSublist(++numOfSublists, empHash, genderHash, deptHash);
 
 				empHash = new TreeMap<Integer, ArrayList<Integer>>();
-				genderHash = new TreeMap<Byte, ArrayList<Integer>>();
+				genderHash = new TreeMap<Integer, ArrayList<Integer>>();
 				deptHash = new TreeMap<Integer, ArrayList<Integer>>();
-				// break;
 			}
 			firstByte = dr.readByte();
 		}
@@ -220,8 +173,43 @@ public class Main {
 		return numOfSublists;
 	}
 
+	private static void addToMap(int key, int index, TreeMap<Integer, ArrayList<Integer>> map, boolean isEmpid,
+			int lastUpdate) {
+		if (!map.containsKey(key)) {
+			ArrayList<Integer> list = new ArrayList<Integer>();
+			list.add(index);
+
+			if (isEmpid) {
+				list.add(index);
+				list.add(lastUpdate);
+			}
+			map.put(key, list);
+		} // if treemap have given key, add index to its arraylist
+		else {
+			if (isEmpid) {
+				int last = map.get(key).size() - 1;
+				int oldLastUpdate = map.get(key).get(last);
+				int oldIndex = map.get(key).get(last - 1);
+				map.get(key).remove(last);
+				map.get(key).remove(last - 1);
+				map.get(key).add(index);
+				if (lastUpdate > oldLastUpdate) {
+					map.get(key).add(index);
+					map.get(key).add(index);
+				} else {
+					map.get(key).add(oldIndex);
+					map.get(key).add(oldLastUpdate);
+				}
+				return;
+			}
+			map.get(key).add(index);
+
+		}
+
+	}
+
 	private static void writeSublist(byte numOfSublists, TreeMap<Integer, ArrayList<Integer>> empHash,
-			TreeMap<Byte, ArrayList<Integer>> genderHash, TreeMap<Integer, ArrayList<Integer>> deptHash)
+			TreeMap<Integer, ArrayList<Integer>> genderHash, TreeMap<Integer, ArrayList<Integer>> deptHash)
 			throws IOException {
 
 		BufferedWriter br = new BufferedWriter(new FileWriter("sublists\\" + numOfSublists + "_E.txt"));
@@ -250,7 +238,7 @@ public class Main {
 
 		br = new BufferedWriter(new FileWriter("sublists\\" + numOfSublists + "_G.txt"));
 
-		for (byte gender : genderHash.keySet()) {
+		for (int gender : genderHash.keySet()) {
 			br.write(gender + "");
 			for (Integer index : genderHash.get(gender)) {
 				br.write(" " + index);
