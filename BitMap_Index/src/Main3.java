@@ -60,8 +60,8 @@ public class Main3 {
 		Double start = (double) System.nanoTime();
 
 		
-		file(fileAddress1);
-		file(fileAddress2);
+		createMap(fileAddress1);
+		createMap(fileAddress2);
 
 		
 		if (WRITE_MERGED) {
@@ -76,7 +76,7 @@ public class Main3 {
 		writeOutput();
 
 	}
-	public static void file(String fileAddress) throws IOException {
+	public static void createMap(String fileAddress) throws IOException {
 		int numOfTuples = 0;
 		DataReader dr = new DataReader(fileAddress);
 		byte firstByte = dr.readByte();
@@ -124,21 +124,21 @@ public class Main3 {
 	private static void writeOutput() {
 		if (WRITE_UNCOMPRESSED) {
 			System.out.println("For file1");
-			System.out.println("\nEmpID Uncompressed: " + (new File("E1.txt").length() * 1.0 / 1024) + " KB");
+			System.out.println("EmpID Uncompressed: " + (new File("E1.txt").length() * 1.0 / 1024) + " KB");
 			System.out.println("Dept Uncompressed: " + (new File("D1.txt").length() * 1.0 / 1024) + " KB");
 			System.out.println("Gender Uncompressed: " + (new File("G1.txt").length() * 1.0 / 1024) + " KB");
-			System.out.println("For file2");
-			System.out.println("\nEmpID Uncompressed: " + (new File("E2.txt").length() * 1.0 / 1024) + " KB");
+			System.out.println("\nFor file2");
+			System.out.println("EmpID Uncompressed: " + (new File("E2.txt").length() * 1.0 / 1024) + " KB");
 			System.out.println("Dept Uncompressed: " + (new File("D2.txt").length() * 1.0 / 1024) + " KB");
 			System.out.println("Gender Uncompressed: " + (new File("G2.txt").length() * 1.0 / 1024) + " KB");
 		}
 		if (WRITE_COMPRESSED) {
-			System.out.println("For file1");
-			System.out.println("\nEmpID Compressed: " + (new File("E1_compressed.txt").length() * 1.0 / 1024) + " KB");
+			System.out.println("\nFor file1");
+			System.out.println("EmpID Compressed: " + (new File("E1_compressed.txt").length() * 1.0 / 1024) + " KB");
 			System.out.println("Dept Compressed: " + (new File("D1_compressed.txt").length() * 1.0 / 1024) + " KB");
 			System.out.println("Gender Compressed: " + (new File("G1_compressed.txt").length() * 1.0 / 1024) + " KB");
-			System.out.println("For file2");
-			System.out.println("\nEmpID Compressed: " + (new File("E2_compressed.txt").length() * 1.0 / 1024) + " KB");
+			System.out.println("\nFor file2");
+			System.out.println("EmpID Compressed: " + (new File("E2_compressed.txt").length() * 1.0 / 1024) + " KB");
 			System.out.println("Dept Compressed: " + (new File("D2_compressed.txt").length() * 1.0 / 1024) + " KB");
 			System.out.println("Gender Compressed: " + (new File("G2_compressed.txt").length() * 1.0 / 1024) + " KB");
 		}
