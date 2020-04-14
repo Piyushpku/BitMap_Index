@@ -48,10 +48,10 @@ public class Main3 {
 	public static void main(String[] args) throws IOException {
 
 		System.out.println("File 1:");
-		fileAddress1 = "C:\\Users\\Piyush\\Desktop\\Data\\Data1.txt"; // getFileAddress();
+		fileAddress1 = getFileAddress();	//"C:\\Users\\Piyush\\Desktop\\Data\\Data1.txt";
 
 		System.out.println("\nFile 2:");
-		fileAddress2 = "C:\\Users\\Piyush\\Desktop\\Data\\Data2.txt";// getFileAddress();
+		fileAddress2 = getFileAddress(); //"C:\\Users\\Piyush\\Desktop\\Data\\Data2.txt";
 
 		/*
 		 * C:\Users\ekjot\git\BitMap_Index\BitMap_Index\Data\Data.txt
