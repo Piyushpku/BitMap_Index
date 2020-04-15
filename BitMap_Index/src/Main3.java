@@ -31,6 +31,7 @@ public class Main3 {
 	static String fileAddress2;
 
 	static int tuplesInFile1;
+	static double indexTime = 0;
 
 	/*
 	 * ALGORITHM (TPMMS to build Bitmap Index):
@@ -68,7 +69,10 @@ public class Main3 {
 			}
 			writeMergedFile();
 		}
-		System.out.println("\nTotal time : " + (System.nanoTime() - start) / 1000000000 + " sec");
+		System.out.println("\nIndexing time : " + indexTime / 1000000000 + " sec");
+		System.out.println("File creation time : " + (System.nanoTime() - start - indexTime) / 1000000000 + " sec");
+
+		System.out.println("Total time : " + (System.nanoTime() - start) / 1000000000 + " sec");
 
 		writeOutput();
 
@@ -83,6 +87,7 @@ public class Main3 {
 		HashMap<Integer, ArrayList<Integer>> genderHash = new HashMap<Integer, ArrayList<Integer>>();
 		HashMap<Integer, ArrayList<Integer>> deptHash = new HashMap<Integer, ArrayList<Integer>>();
 
+		double time = System.nanoTime();
 		// run until both files are complete
 		while (firstByte != -1) {
 
@@ -104,6 +109,7 @@ public class Main3 {
 
 			firstByte = dr.readByte();
 		}
+		indexTime += System.nanoTime() - time;
 		TOTAL_TUPLES = numOfTuples;
 		String e = null, d = null, g = null;
 		if (fileAddress.equals(fileAddress1)) {
@@ -123,7 +129,7 @@ public class Main3 {
 
 	private static void writeOutput() {
 		if (WRITE_UNCOMPRESSED) {
-			System.out.println("For file1");
+			System.out.println("\nFor file1");
 			System.out.println("EmpID Uncompressed: " + (new File("E1.txt").length() * 1.0 / 1024) + " KB");
 			System.out.println("Dept Uncompressed: " + (new File("D1.txt").length() * 1.0 / 1024) + " KB");
 			System.out.println("Gender Uncompressed: " + (new File("G1.txt").length() * 1.0 / 1024) + " KB");
@@ -201,7 +207,7 @@ public class Main3 {
 	}
 
 	private static void writeMergedFile() throws IOException {
-		
+
 		BufferedReader br = new BufferedReader(new FileReader("E1.txt"));
 		BufferedReader br1 = new BufferedReader(new FileReader("E2.txt"));
 		// stream for writing merged tuples
@@ -376,7 +382,7 @@ public class Main3 {
 			i++;
 
 			// for compressed
-			String bin = Integer.toBinaryString(ind-1);
+			String bin = Integer.toBinaryString(ind - 1);
 			for (int j = 1; j < bin.length(); j++) {
 				bwc.write("1");
 			}
