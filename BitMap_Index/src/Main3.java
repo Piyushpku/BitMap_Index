@@ -201,6 +201,7 @@ public class Main3 {
 	}
 
 	private static void writeMergedFile() throws IOException {
+		
 		BufferedReader br = new BufferedReader(new FileReader("E1.txt"));
 		BufferedReader br1 = new BufferedReader(new FileReader("E2.txt"));
 		// stream for writing merged tuples
@@ -375,7 +376,7 @@ public class Main3 {
 			i++;
 
 			// for compressed
-			String bin = Integer.toBinaryString(ind);
+			String bin = Integer.toBinaryString(ind-1);
 			for (int j = 1; j < bin.length(); j++) {
 				bwc.write("1");
 			}

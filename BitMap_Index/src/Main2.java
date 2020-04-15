@@ -168,10 +168,10 @@ public class Main2 {
 		BufferedWriter bwc = new BufferedWriter(new FileWriter(col + "_compressed.txt"));
 
 		if (!WRITE_UNCOMPRESSED) {
-			bwu.nullWriter();
+			//bwu.nullWriter();
 		}
 		if (!WRITE_COMPRESSED) {
-			bwc.nullWriter();
+			//bwc.nullWriter();
 		}
 
 		for (int key : keys) {

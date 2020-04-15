@@ -278,10 +278,10 @@ public class Main {
 		BufferedWriter bwc = new BufferedWriter(new FileWriter(col + "_compressed.txt"));
 
 		if (WRITE_UNCOMPRESSED) {
-			bwu.nullWriter();
+			//bwu.nullWriter();
 		}
 		if (WRITE_COMPRESSED) {
-			bwc.nullWriter();
+			//bwc.nullWriter();
 		}
 
 		// MERGING ALGORITHM
