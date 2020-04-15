@@ -2,7 +2,6 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -26,7 +25,7 @@ public class Main3 {
 
 	static boolean WRITE_UNCOMPRESSED = true;
 	static boolean WRITE_COMPRESSED = true;
-	static boolean WRITE_MERGED = true;
+	static boolean WRITE_MERGED = false;
 
 	static String fileAddress1;
 	static String fileAddress2;
@@ -48,10 +47,10 @@ public class Main3 {
 	public static void main(String[] args) throws IOException {
 
 		System.out.println("File 1:");
-		fileAddress1 = getFileAddress();	//"C:\\Users\\Piyush\\Desktop\\Data\\Data1.txt";
+		fileAddress1 = getFileAddress(); // "C:\\Users\\Piyush\\Desktop\\Data\\Data1.txt";
 
 		System.out.println("\nFile 2:");
-		fileAddress2 = getFileAddress(); //"C:\\Users\\Piyush\\Desktop\\Data\\Data2.txt";
+		fileAddress2 = getFileAddress(); // "C:\\Users\\Piyush\\Desktop\\Data\\Data2.txt";
 
 		/*
 		 * C:\Users\ekjot\git\BitMap_Index\BitMap_Index\Data\Data.txt
@@ -59,11 +58,9 @@ public class Main3 {
 
 		Double start = (double) System.nanoTime();
 
-		
 		createMap(fileAddress1);
 		createMap(fileAddress2);
 
-		
 		if (WRITE_MERGED) {
 			File f = new File("merged.txt");
 			if (f.exists()) {
@@ -76,6 +73,7 @@ public class Main3 {
 		writeOutput();
 
 	}
+
 	public static void createMap(String fileAddress) throws IOException {
 		int numOfTuples = 0;
 		DataReader dr = new DataReader(fileAddress);
@@ -87,9 +85,10 @@ public class Main3 {
 
 		// run until both files are complete
 		while (firstByte != -1) {
-					
+
 			// code to read a tuple and extract values
 			Tuple tuple = dr.readTuple(firstByte);
+			// System.out.println(tuple.toString());
 			numOfTuples++;
 
 			if (numOfTuples == MAX_TUPLES) {
@@ -106,21 +105,22 @@ public class Main3 {
 			firstByte = dr.readByte();
 		}
 		TOTAL_TUPLES = numOfTuples;
-		String e = null,d = null,g = null;
-		if(fileAddress.equals(fileAddress1)) {
-			e="E1";
-			d="D1";
-			g="G1";
-		}else if(fileAddress.equals(fileAddress2)) {
-			e="E2";
-			d="D2";
-			g="G2";
+		String e = null, d = null, g = null;
+		if (fileAddress.equals(fileAddress1)) {
+			e = "E1";
+			d = "D1";
+			g = "G1";
+		} else if (fileAddress.equals(fileAddress2)) {
+			e = "E2";
+			d = "D2";
+			g = "G2";
 		}
 		makeBitmapIndex(empHash, e);
 		makeBitmapIndex(deptHash, d);
 		makeBitmapIndex(genderHash, g);
 
 	}
+
 	private static void writeOutput() {
 		if (WRITE_UNCOMPRESSED) {
 			System.out.println("For file1");
@@ -172,10 +172,10 @@ public class Main3 {
 		BufferedWriter bwc = new BufferedWriter(new FileWriter(col + "_compressed.txt"));
 
 		if (!WRITE_UNCOMPRESSED) {
-			//bwu.nullWriter();
+			// bwu.nullWriter();
 		}
 		if (!WRITE_COMPRESSED) {
-			//bwc.nullWriter();
+			// bwc.nullWriter();
 		}
 
 		for (int key : keys) {
@@ -207,155 +207,152 @@ public class Main3 {
 		BufferedWriter bwm = new BufferedWriter(new FileWriter("merged.txt", true));
 		DataReader dr = null;
 		String s = br.readLine();
-		String s1=br1.readLine();
-		while (s!=null || s1!=null) {
-			
-			String str[]; 
-			String str1[]; 
-			int key1,key2;
-			ArrayList<Tuple> tuples = new ArrayList<Tuple>();
-			if(s!=null && s1!=null) {
-				str= (s.split(" "));
-				str1 = (s1.split(" "));
-				key1=Integer.parseInt(str[0]);
-				key2=Integer.parseInt(str1[0]);
-			if(key1==key2) {
-				
-				dr = new DataReader(fileAddress1);
-				DataReader dr2 = new DataReader(fileAddress2);
-				for (int i = 0; i < str[1].length(); i++) {
-					int index = i + 1;
-					if (str[1].charAt(i) == '1') {
-						tuples.add(dr.readTupleAt(index));
-					}
-				}
-				for (int i = 0; i < str1[1].length(); i++) {
-					int index = i + 1;
-					if (str1[1].charAt(i) == '1') {
-						tuples.add(dr2.readTupleAt(index));
-					}
-				}
-				
-				int latestUpdate=0;
-				Tuple latestTuple = null;
-				for(Tuple t:tuples) {
-					if(latestUpdate<t.getLastUpdateAsNum()) {
-						latestUpdate=t.getLastUpdateAsNum();
-						latestTuple=t;
-					}
-				}
-				bwm.write(latestTuple.toString() + "\r");
-				dr.delink();
-				dr2.delink();
-				s=br.readLine();
-				s1=br1.readLine();
-			}
-			else if(key1<key2) {
-				dr = new DataReader(fileAddress1);
-				for (int i = 0; i < str[1].length(); i++) {
-					int index = i + 1;
-					if (str[1].charAt(i) == '1') {
-						tuples.add(dr.readTupleAt(index));
-					}
-				}
-				
-				int latestUpdate=0;
-				Tuple latestTuple = null;
-				for(Tuple t:tuples) {
-					if(latestUpdate<t.getLastUpdateAsNum()) {
-						latestUpdate=t.getLastUpdateAsNum();
-						latestTuple=t;
-					}
-				}
-				
-				bwm.write(latestTuple.toString() + "\r");
-				dr.delink();
-				s=br.readLine();
-			}
-			else if(key1>key2) {
-				dr = new DataReader(fileAddress2);
-				for (int i = 0; i < str1[1].length(); i++) {
-					int index = i + 1;
-					if (str1[1].charAt(i) == '1') {
-						tuples.add(dr.readTupleAt(index));
-					}
-				}
-				
-				int latestUpdate=0;
-				Tuple latestTuple = null;
-				for(Tuple t:tuples) {
-					if(latestUpdate<t.getLastUpdateAsNum()) {
-						latestUpdate=t.getLastUpdateAsNum();
-						latestTuple=t;
-					}
-				}
-				
-				bwm.write(latestTuple.toString() + "\r");
-				dr.delink();
-				s1=br1.readLine();
-			}
-			}
-			else if(s==null && s1!=null) {
-				
-				str1 = (s1.split(" "));
-				dr = new DataReader(fileAddress2);
-				for (int i = 0; i < str1[1].length(); i++) {
-					int index = i + 1;
-					if (str1[1].charAt(i) == '1') {
-						tuples.add(dr.readTupleAt(index));
-					}
-				}
-				
-				int latestUpdate=0;
-				Tuple latestTuple = null;
-				for(Tuple t:tuples) {
-					if(latestUpdate<t.getLastUpdateAsNum()) {
-						latestUpdate=t.getLastUpdateAsNum();
-						latestTuple=t;
-					}
-				}
-				
-				bwm.write(latestTuple.toString() + "\r");
-				dr.delink();
-				s1=br1.readLine();
-			}
-			else if(s1==null && s!=null) {
-				str= (s.split(" "));
-				dr = new DataReader(fileAddress1);
-				for (int i = 0; i < str[1].length(); i++) {
-					int index = i + 1;
-					if (str[1].charAt(i) == '1') {
-						tuples.add(dr.readTupleAt(index));
-					}
-				}
-				
-				int latestUpdate=0;
-				Tuple latestTuple = null;
-				for(Tuple t:tuples) {
-					if(latestUpdate<t.getLastUpdateAsNum()) {
-						latestUpdate=t.getLastUpdateAsNum();
-						latestTuple=t;
-					}
-				}
-				
-				bwm.write(latestTuple.toString() + "\r");
-				dr.delink();
-				s=br.readLine();
-			}
-			
-		}
-		
-		
+		String s1 = br1.readLine();
 
-		
-		
+		while (s != null || s1 != null) {
+			// System.out.println("s="+s+" s1="+s1);
+			String str[];
+			String str1[];
+			int key1, key2;
+			ArrayList<Tuple> tuples = new ArrayList<Tuple>();
+			if (s != null && s1 != null) {
+				str = (s.split(" "));
+				str1 = (s1.split(" "));
+				key1 = Integer.parseInt(str[0]);
+				key2 = Integer.parseInt(str1[0]);
+				if (key1 == key2) {
+
+					for (int i = 0; i < str[1].length(); i++) {
+						int index = i + 1;
+						if (str[1].charAt(i) == '1') {
+							dr = new DataReader(fileAddress1);
+							tuples.add(dr.readTupleAt(index));
+						}
+					}
+					for (int i = 0; i < str1[1].length(); i++) {
+						int index = i + 1;
+						if (str1[1].charAt(i) == '1') {
+							DataReader dr2 = new DataReader(fileAddress2);
+							tuples.add(dr2.readTupleAt(index));
+						}
+					}
+
+					int latestUpdate = 0;
+					Tuple latestTuple = null;
+					for (Tuple t : tuples) {
+						if (latestUpdate < t.getLastUpdateAsNum()) {
+							latestUpdate = t.getLastUpdateAsNum();
+							latestTuple = t;
+						}
+					}
+					bwm.write(latestTuple.toString() + "\r");
+					dr.delink();
+					s = br.readLine();
+					s1 = br1.readLine();
+				} else if (key1 < key2) {
+
+					for (int i = 0; i < str[1].length(); i++) {
+						int index = i + 1;
+						if (str[1].charAt(i) == '1') {
+							dr = new DataReader(fileAddress1);
+							tuples.add(dr.readTupleAt(index));
+						}
+					}
+
+					int latestUpdate = 0;
+					Tuple latestTuple = null;
+					for (Tuple t : tuples) {
+						if (latestUpdate < t.getLastUpdateAsNum()) {
+							latestUpdate = t.getLastUpdateAsNum();
+							latestTuple = t;
+						}
+					}
+
+					bwm.write(latestTuple.toString() + "\r");
+					dr.delink();
+					s = br.readLine();
+				} else if (key1 > key2) {
+
+					for (int i = 0; i < str1[1].length(); i++) {
+						int index = i + 1;
+						if (str1[1].charAt(i) == '1') {
+							dr = new DataReader(fileAddress2);
+							tuples.add(dr.readTupleAt(index));
+						}
+					}
+
+					int latestUpdate = 0;
+					Tuple latestTuple = null;
+					for (Tuple t : tuples) {
+						if (latestUpdate < t.getLastUpdateAsNum()) {
+							latestUpdate = t.getLastUpdateAsNum();
+							latestTuple = t;
+						}
+					}
+
+					bwm.write(latestTuple.toString() + "\r");
+					dr.delink();
+					s1 = br1.readLine();
+				}
+			} else if (s == null && s1 != null) {
+
+				str1 = (s1.split(" "));
+
+				for (int i = 0; i < str1[1].length(); i++) {
+					int index = i + 1;
+					if (str1[1].charAt(i) == '1') {
+						dr = new DataReader(fileAddress2);
+						tuples.add(dr.readTupleAt(index));
+					}
+				}
+
+				int latestUpdate = 0;
+				Tuple latestTuple = null;
+				for (Tuple t : tuples) {
+					if (latestUpdate < t.getLastUpdateAsNum()) {
+						latestUpdate = t.getLastUpdateAsNum();
+						latestTuple = t;
+					}
+				}
+
+				bwm.write(latestTuple.toString() + "\r");
+				dr.delink();
+				s1 = br1.readLine();
+			} else if (s1 == null && s != null) {
+				str = (s.split(" "));
+				for (int i = 0; i < str[1].length(); i++) {
+					int index = i + 1;
+					if (str[1].charAt(i) == '1') {
+						dr = new DataReader(fileAddress1);
+						tuples.add(dr.readTupleAt(index));
+					}
+				}
+
+				int latestUpdate = 0;
+				Tuple latestTuple = null;
+				for (Tuple t : tuples) {
+					if (latestUpdate < t.getLastUpdateAsNum()) {
+						latestUpdate = t.getLastUpdateAsNum();
+						latestTuple = t;
+					}
+				}
+
+				bwm.write(latestTuple.toString() + "\r");
+				dr.delink();
+				s = br.readLine();
+			}
+
+		}
+
 		bwm.close();
+		br.close();
+		br1.close();
 		// System.out.print(t.toString()+"\n");
 
 	}
 
-	private static void writeBitmapIndex(BufferedWriter bwu, BufferedWriter bwc, Integer key, Integer[] index, String col)
-			throws IOException {
+	private static void writeBitmapIndex(BufferedWriter bwu, BufferedWriter bwc, Integer key, Integer[] index,
+			String col) throws IOException {
 		String Key = "" + key;
 		if (col.startsWith("E")) {
 			Key = String.format("%08d", key);
